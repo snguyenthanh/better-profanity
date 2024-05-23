@@ -6,6 +6,7 @@
 [![Build Status](https://travis-ci.com/snguyenthanh/better_profanity.svg?branch=master)](https://travis-ci.com/snguyenthanh/better_profanity)
 ![python](https://img.shields.io/badge/python-3-blue.svg)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=popout)](https://github.com/snguyenthanh/better_profanity/blob/master/LICENSE)
+[![better-profanity Downloads Last Month](https://assets.piptrends.com/get-last-month-downloads-badge/better-profanity.svg 'better-profanity Downloads Last Month by pip Trends')](https://piptrends.com/package/better-profanity)
 
 > Currently there is a [performance issue with the latest version (0.7.0)](https://github.com/snguyenthanh/better_profanity/issues/19). It is recommended to use the [last stable version 0.6.1](https://pypi.org/project/better-profanity/0.6.1/).
 
