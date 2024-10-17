@@ -8,6 +8,7 @@ from .utils import (
     get_complete_path_of_file,
     get_replacement_for_swear_word,
     read_wordlist,
+    get_next_words_form_swear_word,
 )
 from .varying_string import VaryingString
 
@@ -32,7 +33,7 @@ class Profanity:
         self.CENSOR_WORDSET = []
         self.CHARS_MAPPING = {
             "a": ("a", "@", "*", "4"),
-            "i": ("i", "*", "l", "1"),
+            "i": ("i", "*", "1"),
             "o": ("o", "*", "0", "@"),
             "u": ("u", "*", "v"),
             "v": ("v", "*", "u"),
@@ -144,6 +145,63 @@ class Profanity:
             if words_indices and words_indices[-1][0] != "":
                 words_indices += self._get_next_words(text, words_indices[-1][1], 1)
         return words_indices
+    
+    def get_all_swear_words(self, text):
+        """Return all swear words in the text."""
+        swear_words = set()
+        cur_word = ""
+        skip_index = -1
+        next_words_indices = []
+        start_idx_of_next_word = self._get_start_index_of_next_word(text, 0)
+
+        # If there are no words in the text, return the raw text without parsing
+        if start_idx_of_next_word >= len(text) - 1:
+            return []
+
+        # Left strip the text, to avoid inaccurate parsing
+        if start_idx_of_next_word > 0:
+            text = text[start_idx_of_next_word:]
+
+        # Splitting each word in the text to compare with censored words
+        for index, char in iter(enumerate(text)):
+            if index < skip_index:
+                continue
+            if char in ALLOWED_CHARACTERS:
+                cur_word += char
+                continue
+
+            # Skip continuous non-allowed characters
+            if cur_word.strip() == "":
+                cur_word = ""
+                continue
+
+            # Iterate the next words combined with the current one
+            # to check if it forms a swear word
+            next_words_indices = self._update_next_words_indices(
+                text, next_words_indices, index
+            )
+            contains_swear_word, swear_word, end_index = get_next_words_form_swear_word(
+                cur_word, next_words_indices, self.CENSOR_WORDSET
+            )
+            if contains_swear_word:
+                swear_words.add(str(swear_word))
+                cur_word = ""
+                skip_index = end_index
+                char = ""
+                next_words_indices = []
+
+            # If the current a swear word
+            if cur_word.lower() in self.CENSOR_WORDSET:
+                swear_words.add(str(cur_word))
+                cur_word = ""
+
+            cur_word = ""
+
+        # Final check
+        if cur_word != "" and skip_index < len(text) - 1:
+            if cur_word.lower() in self.CENSOR_WORDSET:
+                swear_words.add(str(cur_word))
+        return sorted(swear_words)
 
     def _hide_swear_words(self, text, censor_char):
         """Replace the swear words with censor characters."""
